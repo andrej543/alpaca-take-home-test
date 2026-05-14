@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alpaca B2C revenue analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..600&family=Inter+Tight:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #FAF8F3;
+    --surface: #FFFFFF;
+    --surface-muted: #F4F0E6;
+    --ink: #1A1A1A;
+    --ink-2: #4A4641;
+    --ink-3: #7A746A;
+    --border: #E5DFD2;
+    --border-strong: #C9C0AB;
+    --accent: #0F6E56;
+    --accent-soft: #E1F5EE;
+    --warn: #993C1D;
+    --warn-soft: #FAECE7;
+    --serif: 'Fraunces', 'Iowan Old Style', 'Palatino', Georgia, serif;
+    --sans: 'Inter Tight', -apple-system, system-ui, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.65;
+    font-weight: 380;
+    letter-spacing: -0.005em;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ====== Top bar ====== */
+  .topbar {
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    padding: 18px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--ink-3);
+    letter-spacing: 0.02em;
+  }
+  .topbar .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .topbar .brand::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .topbar .meta { font-family: var(--mono); font-size: 12px; }
+
+  /* ====== Hero ====== */
+  .hero {
+    padding: 72px 48px 56px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+  }
+  .hero-inner { max-width: 1600px; margin: 0 auto; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    margin: 0 0 18px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 380;
+    font-size: clamp(48px, 6vw, 84px);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    margin: 0 0 24px;
+    color: var(--ink);
+    font-variation-settings: "SOFT" 50, "opsz" 144;
+  }
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+    font-variation-settings: "SOFT" 100, "opsz" 144;
+  }
+  .dek {
+    font-family: var(--sans);
+    font-size: 20px;
+    line-height: 1.5;
+    color: var(--ink-2);
+    margin: 0 0 48px;
+    max-width: 720px;
+    font-weight: 380;
+  }
+  .hero-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    max-width: 1100px;
+  }
+  .hero-metric {
+    background: var(--bg);
+    padding: 22px 24px;
+  }
+  .hero-metric .label {
+    font-size: 12px;
+    color: var(--ink-3);
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+  .hero-metric .value {
+    font-family: var(--serif);
+    font-size: 34px;
+    line-height: 1;
+    font-weight: 380;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+  .hero-metric .delta {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+    margin-top: 6px;
+  }
+  .hero-metric .delta.neg { color: var(--warn); }
+
+  /* ====== Main 70/30 layout ====== */
+  .layout {
+    display: grid;
+    grid-template-columns: 70fr 30fr;
+    gap: 56px;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 64px 48px 96px;
+  }
+  .content { min-width: 0; }
+  .sidebar { min-width: 0; }
+
+  /* ====== Sidebar placeholder ====== */
+  .placeholder {
+    position: sticky;
+    top: 32px;
+    background: var(--surface-muted);
+    border: 1.5px dashed var(--border-strong);
+    border-radius: 8px;
+    min-height: calc(100vh - 80px);
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    color: var(--ink-3);
+  }
+  .placeholder-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 1.5px dashed var(--border-strong);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--serif);
+    font-size: 28px;
+    font-style: italic;
+    color: var(--ink-3);
+  }
+  .placeholder-label {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .placeholder-hint {
+    font-family: var(--sans);
+    font-size: 14px;
+    color: var(--ink-3);
+    text-align: center;
+    max-width: 240px;
+    line-height: 1.5;
+  }
+
+  /* ====== Content typography ====== */
+  .content h2 {
+    font-family: var(--serif);
+    font-weight: 380;
+    font-size: clamp(32px, 3.4vw, 44px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin: 88px 0 8px;
+    color: var(--ink);
+    font-variation-settings: "SOFT" 30, "opsz" 144;
+  }
+  .content h2:first-child { margin-top: 0; }
+  .content h2 .num {
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 14px;
+    font-style: normal;
+  }
+  .content h3 {
+    font-family: var(--serif);
+    font-weight: 380;
+    font-size: 26px;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    margin: 56px 0 16px;
+    color: var(--ink);
+  }
+  .content h3 .rec-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 4px 10px;
+    border-radius: 4px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-right: 12px;
+    vertical-align: 4px;
+    font-style: normal;
+  }
+  .content p {
+    margin: 0 0 18px;
+    color: var(--ink-2);
+    font-size: 17px;
+    line-height: 1.7;
+    max-width: 78ch;
+  }
+  .content p strong, .content li strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .content em {
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--ink);
+  }
+  .content ul {
+    margin: 0 0 24px;
+    padding-left: 0;
+    list-style: none;
+  }
+  .content ul li {
+    position: relative;
+    padding-left: 22px;
+    margin-bottom: 14px;
+    color: var(--ink-2);
+    font-size: 17px;
+    line-height: 1.65;
+    max-width: 78ch;
+  }
+  .content ul li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 12px;
+    width: 8px;
+    height: 1px;
+    background: var(--border-strong);
+  }
+  .lede {
+    font-family: var(--serif);
+    font-size: 24px;
+    line-height: 1.4;
+    color: var(--ink);
+    font-weight: 380;
+    letter-spacing: -0.01em;
+    margin: 0 0 32px;
+    max-width: 32em;
+    font-variation-settings: "SOFT" 50;
+  }
+
+  /* ====== Tables ====== */
+  .table-wrap {
+    margin: 28px 0 36px;
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+  }
+  thead th {
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-3);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-strong);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  thead th.num { text-align: right; }
+  tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink-2);
+    vertical-align: top;
+  }
+  tbody td.num {
+    text-align: right;
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  tbody td.label {
+    color: var(--ink);
+    font-weight: 450;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+
+  /* ====== Chart containers ====== */
+  .chart-block {
+    margin: 32px 0 44px;
+    padding: 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .chart-caption {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0 0 18px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .chart-caption .figref { color: var(--accent); }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 22px;
+  }
+  .stat {
+    background: var(--surface);
+    padding: 16px 18px;
+  }
+  .stat .label {
+    font-size: 11px;
+    color: var(--ink-3);
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+  }
+  .stat .value {
+    font-family: var(--serif);
+    font-size: 22px;
+    line-height: 1.1;
+    color: var(--ink);
+    font-weight: 380;
+  }
+  .stat .delta {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    margin-top: 4px;
+  }
+
+  .legend-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    margin-bottom: 16px;
+    font-size: 12px;
+    color: var(--ink-3);
+    font-family: var(--mono);
+  }
+  .legend-row .item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend-row .swatch {
+    width: 11px;
+    height: 11px;
+    border-radius: 2px;
+  }
+
+  .chart-canvas-wrap {
+    position: relative;
+    width: 100%;
+    height: 380px;
+  }
+  .sm-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .sm-cell {
+    background: var(--surface-muted);
+    border-radius: 6px;
+    padding: 12px 14px 10px;
+  }
+  .sm-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+  }
+  .sm-head .name { font-size: 13px; font-weight: 500; color: var(--ink); }
+  .sm-head .note { font-size: 11px; color: var(--ink-3); font-family: var(--mono); }
+  .sm-canvas {
+    position: relative;
+    width: 100%;
+    height: 110px;
+  }
+
+  /* ====== Correlation matrix ====== */
+  .corr-wrap {
+    margin: 8px 0 0;
+  }
+  .corr-grid {
+    display: grid;
+    grid-template-columns: 100px repeat(9, minmax(0, 1fr));
+    gap: 2px;
+  }
+  .corr-grid .col-header {
+    text-align: center;
+    padding: 6px 2px 10px;
+    font-size: 11px;
+    color: var(--ink-3);
+    font-family: var(--mono);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  .corr-grid .row-header {
+    text-align: right;
+    padding: 10px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink);
+    font-family: var(--sans);
+  }
+  .corr-grid .cell {
+    padding: 14px 4px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 3px;
+  }
+  .corr-grid .cell.diag { opacity: 0.45; }
+  .corr-grid .cell.highlight { box-shadow: inset 0 0 0 2px currentColor; }
+  .corr-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    margin-top: 18px;
+    font-size: 11px;
+    color: var(--ink-3);
+    font-family: var(--mono);
+    align-items: center;
+  }
+  .corr-legend .item { display: inline-flex; align-items: center; gap: 4px; }
+  .corr-legend .swatch { display: inline-block; width: 14px; height: 14px; border-radius: 2px; }
+
+  /* ====== Callout ====== */
+  .callout {
+    margin: 28px 0 32px;
+    padding: 22px 24px;
+    background: var(--surface);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+  }
+  .callout p { margin: 0; color: var(--ink); font-size: 16px; line-height: 1.6; }
+  .callout p + p { margin-top: 10px; }
+  .callout strong { color: var(--ink); font-weight: 500; }
+
+  /* ====== Recommendation cards ====== */
+  .rec {
+    margin: 40px 0 48px;
+    padding: 36px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .rec h3 { margin-top: 0; }
+  .rec h4 {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin: 28px 0 10px;
+    font-weight: 500;
+  }
+  .rec h4:first-of-type { margin-top: 24px; }
+
+  /* ====== Footer ====== */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 36px 48px;
+    color: var(--ink-3);
+    font-size: 13px;
+    font-family: var(--mono);
+    text-align: center;
+  }
+
+  /* ====== Responsive ====== */
+  @media (max-width: 1100px) {
+    .hero-metrics, .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    .sm-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; gap: 40px; padding: 48px 32px; }
+    .placeholder { position: static; min-height: 320px; }
+    .hero { padding: 56px 32px 40px; }
+    .topbar { padding: 16px 32px; }
+    .corr-grid { font-size: 10px; }
+  }
+  @media (max-width: 600px) {
+    .hero-metrics, .stat-grid { grid-template-columns: 1fr; }
+    .sm-grid { grid-template-columns: 1fr; }
+    .corr-grid { grid-template-columns: 70px repeat(9, minmax(0, 1fr)); }
+    .corr-grid .cell { font-size: 10px; padding: 10px 2px; }
+    .corr-grid .col-header { font-size: 9px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">Alpaca · Product take-home</div>
+  <div class="meta">B2C revenue · May 2023 – Apr 2025</div>
+</div>
+
+<section class="hero">
+  <div class="hero-inner">
+    <p class="eyebrow">Take-home analysis</p>
+    <h1>B2C revenue, <em>read three ways</em></h1>
+    <p class="dek">Twenty-four months of monthly revenue across nine streams, 506,892 account-month rows, and one book that quietly tripled. What the trends say, what the new launches did, and where to push next — with the guardrails to do it without breaking trust.</p>
+    <div class="hero-metrics">
+      <div class="hero-metric">
+        <div class="label">Total revenue, 24mo</div>
+        <div class="value">$17.1M</div>
+      </div>
+      <div class="hero-metric">
+        <div class="label">Monthly run-rate</div>
+        <div class="value">$362K → $1.26M</div>
+        <div class="delta">3.5× growth</div>
+      </div>
+      <div class="hero-metric">
+        <div class="label">Active revenue accounts</div>
+        <div class="value">3.8K → 7.2K</div>
+        <div class="delta">1.9× growth</div>
+      </div>
+      <div class="hero-metric">
+        <div class="label">Monthly ARPU (active)</div>
+        <div class="value">$92 → $184</div>
+        <div class="delta">2.0× growth</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main class="layout">
+  <article class="content">
+
+    <h2><span class="num">01 · Setup</span>Dataset overview</h2>
+    <p class="lede">506,892 account-month rows across 24 months, 29,794 unique accounts, nine revenue streams. The book grew 3.5× while the account base grew only 1.4× — meaning most growth came from monetizing the existing base, not from adding accounts.</p>
+    <p>Three framing facts shape everything below.</p>
+    <ul>
+      <li><strong>Revenue 3.5×, accounts 1.4×.</strong> Trailing-3-month revenue went from $362K/mo to $1.26M/mo while total accounts moved from ~18.2K to ~25.5K. The growth came from monetizing the existing base.</li>
+      <li><strong>Highly concentrated book.</strong> 75% of account-months show zero revenue, and in recent months the top 1% of revenue-generating accounts drive 65–70% of revenue. The "B2C" line behaves more like an SMB book than mass-retail.</li>
+      <li><strong>Two data tells.</strong> <code>non_retail_revenue</code> accounts for ~3% of total but spiked to 16% in Q4 2023 — odd presence in a B2C cut. And accounts flagged <code>is_legal_entity = True</code> generate 26% of revenue, suggesting "B2C" here means "served via the retail platform," not "individual humans."</li>
+    </ul>
+
+    <h2><span class="num">02 · Direction</span>Major trends</h2>
+    <p>The book roughly tripled in two distinct phases. Through April 2024, monthly revenue moved sideways-to-slightly-up in the $325K–$520K band. From <strong>June 2024 to September 2024, revenue jumped from $634K to $1.18M</strong> — +86% in three months — and has held in the $1.0–$1.4M zone since. The March 2025 print ($1.39M) is the highest in the series.</p>
+
+    <div class="chart-block">
+      <div class="chart-caption">
+        <span>Monthly revenue by stream, stacked</span>
+        <span class="figref">Figure 01</span>
+      </div>
+      <div class="legend-row" id="legend1"></div>
+      <div class="chart-canvas-wrap">
+        <canvas id="chart1" role="img" aria-label="Stacked area chart of Alpaca monthly B2C revenue by stream from May 2023 to April 2025"></canvas>
+      </div>
+    </div>
+
+    <p>The mix at the start and end of the window also looks materially different. Cash interest's share dropped ~16 percentage points (from 42% to 26%) even though its absolute revenue more than doubled. The four newly-launched streams now contribute ~15% of revenue, with market data and options PFOF carrying that almost entirely.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Stream</th>
+            <th class="num">May–Jul '23</th>
+            <th class="num">Feb–Apr '25</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="label">Retail stock PFOF</td><td class="num">39.5%</td><td class="num">44.9%</td></tr>
+          <tr><td class="label">Cash interest</td><td class="num">42.0%</td><td class="num">26.0%</td></tr>
+          <tr><td class="label">Margin interest</td><td class="num">10.1%</td><td class="num">9.5%</td></tr>
+          <tr><td class="label">Market data</td><td class="num">0.0%</td><td class="num">8.4%</td></tr>
+          <tr><td class="label">Retail options PFOF</td><td class="num">0.0%</td><td class="num">6.2%</td></tr>
+          <tr><td class="label">Stock borrow</td><td class="num">5.7%</td><td class="num">4.1%</td></tr>
+          <tr><td class="label">Non-retail</td><td class="num">2.8%</td><td class="num">0.8%</td></tr>
+          <tr><td class="label">Crypto wallet</td><td class="num">0.0%</td><td class="num">0.1%</td></tr>
+          <tr><td class="label">FDIC sweep</td><td class="num">0.0%</td><td class="num">0.2%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2><span class="num">03 · Composition</span>Changes in contributing factors</h2>
+    <p>Four streams turn on during the window, in two clear waves.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Stream</th>
+            <th>First $</th>
+            <th class="num">Apr '25 run-rate</th>
+            <th>Read</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="label">Market data</td><td>Dec '23</td><td class="num">$111K/mo</td><td>Successful launch — straight-line growth with very low volatility</td></tr>
+          <tr><td class="label">Crypto wallet</td><td>Dec '23</td><td class="num">&lt;$1K/mo</td><td>Launched but never scaled — likely an experiment or feature for a tiny segment</td></tr>
+          <tr><td class="label">Retail options PFOF</td><td>May '24</td><td class="num">$124K/mo</td><td>The biggest single product win — $0 to $124K in 12 months</td></tr>
+          <tr><td class="label">FDIC sweep</td><td>May '24</td><td class="num">$2K/mo</td><td>Live but not material yet; appears under-distributed</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>The May 2024 wave (options PFOF + FDIC sweep) lines up with the Jul–Sep 2024 revenue inflection in the legacy streams:</p>
+    <ul>
+      <li><strong>Retail stock PFOF</strong> — $178K (Jun) → $409K (Aug) → $541K (Sep). 3× in three months.</li>
+      <li><strong>Cash interest</strong> — $233K (Jun) → $402K (Aug). +73% in two months.</li>
+      <li><strong>Margin interest</strong> — ~$103K plateau through summer.</li>
+    </ul>
+
+    <div class="callout">
+      <p><strong>Most plausible explanation.</strong> Something on the user-acquisition or activation side changed in mid-2024 — a marketing push, a tier of larger accounts onboarded, or trading activity broadened materially. The simultaneous jump in <em>both</em> trading-driven (stock PFOF) and balance-driven (cash interest) revenue points to net new dollars on the platform, not just higher turnover on existing AUM.</p>
+      <p>Options launch alone can't explain it: options PFOF was only $42K in Jul '24 — much smaller than the $200K+ swings in stock PFOF and cash interest. A secondary hypothesis worth noting: 2024 was a strong year for retail trading broadly, so some lift is macro tailwind that would compound any acquisition push.</p>
+    </div>
+
+    <h2><span class="num">04 · Risk</span>Volatility</h2>
+    <p>Ranked by coefficient of variation over each stream's live period. <em>CV</em> captures total dispersion; <em>MoM σ</em> captures month-to-month change volatility.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Stream</th>
+            <th class="num">CV</th>
+            <th class="num">MoM σ</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="label">Non-retail</td><td class="num">1.06</td><td class="num">193%</td><td>Extreme. Swings $5K → $80K → $5K within months, and goes negative ($-22K) in Apr '25 — likely a reversal or accounting adjustment. Behaves like batch billing.</td></tr>
+          <tr><td class="label">Crypto wallet</td><td class="num">1.15</td><td class="num">163%</td><td>High CV but ~$1.5K/mo base — noise on tiny absolute size.</td></tr>
+          <tr><td class="label">FDIC sweep</td><td class="num">0.95</td><td class="num">764%</td><td>Same caveat — tiny base, just ramping.</td></tr>
+          <tr><td class="label">Retail options PFOF</td><td class="num">0.68</td><td class="num">103%</td><td>High volatility while ramping. Single Jul '24 spike to $42K (then halved), Apr '25 spike to $124K.</td></tr>
+          <tr><td class="label">Retail stock PFOF</td><td class="num">0.68</td><td class="num">25%</td><td>High CV is mostly the upward trend, not jumpiness — MoM noise is moderate.</td></tr>
+          <tr><td class="label">Stock borrow</td><td class="num">0.43</td><td class="num">85%</td><td>Moderate volatility — can drop sharply MoM (e.g., $35K → $7K Aug→Sep '23).</td></tr>
+          <tr><td class="label">Market data</td><td class="num">0.43</td><td>low</td><td>After the launch ramp, the least volatile stream in the book — subscription-like.</td></tr>
+          <tr><td class="label">Margin interest</td><td class="num">0.40</td><td class="num">13%</td><td>Smooth, gradual growth. Rate- and AUM-driven.</td></tr>
+          <tr><td class="label">Cash interest</td><td class="num">0.38</td><td class="num">16%</td><td>Smooth despite the big mid-2024 step-up.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="chart-block">
+      <div class="chart-caption">
+        <span>Individual stream trajectories</span>
+        <span class="figref">Figure 02</span>
+      </div>
+      <div class="sm-grid" id="smGrid"></div>
+    </div>
+
+    <p>The streams worth surfacing to the business: <em>non-retail</em> (genuinely jumpy, plus the negative print is a real flag), and <em>retail options PFOF</em> (still finding its baseline post-launch). The spike-then-revert pattern in options PFOF — $11K (Jun '24) → $42K (Jul) → $22K (Aug) — and the $124K Apr '25 print suggest a small number of options-heavy accounts drive month-to-month results. Confirmation: in Apr '25, only 405 accounts had any options PFOF revenue, and the top 10 of them drove 79% of options revenue that month.</p>
+
+    <h2><span class="num">05 · Linkage</span>Correlations between streams</h2>
+    <p>I looked at this two ways. Pearson correlations on <em>raw monthly levels</em> are nearly all strongly positive (most pairs r > 0.7) — but that's almost entirely the shared upward trend and the simultaneous mid-2024 inflection, not genuine co-movement. The honest answer for "do these streams actually move together" comes from correlating <em>month-over-month % changes</em>, which strips out the shared trend.</p>
+
+    <div class="chart-block">
+      <div class="chart-caption">
+        <span>MoM % change correlation matrix</span>
+        <span class="figref">Figure 03</span>
+      </div>
+      <div class="corr-wrap">
+        <div class="corr-grid" id="corrGrid"></div>
+        <div class="corr-legend">
+          <span>Scale:</span>
+          <span class="item"><span class="swatch" style="background:#993C1D"></span>≤ −0.5</span>
+          <span class="item"><span class="swatch" style="background:#F0997B"></span>−0.3 to −0.5</span>
+          <span class="item"><span class="swatch" style="background:#FAECE7"></span>−0.1 to −0.3</span>
+          <span class="item"><span class="swatch" style="background:#F1EFE8"></span>~0</span>
+          <span class="item"><span class="swatch" style="background:#E6F1FB"></span>0.1 to 0.3</span>
+          <span class="item"><span class="swatch" style="background:#85B7EB"></span>0.3 to 0.5</span>
+          <span class="item"><span class="swatch" style="background:#185FA5"></span>≥ 0.5</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Pair</th>
+            <th class="num">r (MoM %Δ)</th>
+            <th>Plausible reading</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="label">Non-retail ↔ Crypto wallet</td><td class="num">+0.70</td><td>Suspiciously high given both are small and noisy. Could be coincidental on 17 shared data points, or could indicate a small group of accounts uses both. Inconclusive without more data.</td></tr>
+          <tr><td class="label">Stock borrow ↔ Options PFOF</td><td class="num">−0.50</td><td>Possible positioning regime: when retail is buying options (bullish), there's less short-side demand pulling on the borrow book. Or noise on 12 shared months.</td></tr>
+          <tr><td class="label">Stock PFOF ↔ FDIC sweep</td><td class="num">−0.46</td><td>Substitution signal: when trading activity surges, cash gets deployed rather than swept. Directionally what you'd expect.</td></tr>
+          <tr><td class="label">Market data ↔ Stock borrow</td><td class="num">+0.36</td><td>Both are "depth of engagement" signals — more serious users subscribe to data <em>and</em> trade with leverage.</td></tr>
+          <tr><td class="label">Stock PFOF ↔ Cash interest</td><td class="num">+0.30</td><td>Modest. Both partly track AUM growth, so a weak common signal makes sense. Notably not stronger — these streams have meaningfully independent drivers.</td></tr>
+          <tr><td class="label">Margin interest ↔ Stock borrow</td><td class="num">+0.23</td><td>Weaker than expected. Both relate to lending activity, but margin interest follows balances + rates while stock borrow follows hard-to-borrow names — different mechanics.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p><strong>Headline read.</strong> Most streams have weak month-to-month correlation with each other once you strip out the shared trend. That's actually informative — it means revenue is reasonably diversified in its short-term drivers, even though all streams ride the same long-term AUM curve.</p>
+      <p>The non-correlation worth calling out: <strong>cash interest is essentially uncorrelated with everything else</strong> on MoM changes (max |r| ≈ 0.30). It's behaving like a function of total cash balances and Fed rates, which makes it the most macro-exposed line — worth watching going into any rate-cut cycle, especially given it's still ~26% of revenue.</p>
+    </div>
+
+    <h2><span class="num">06 · Action</span>Recommendations</h2>
+    <p class="lede">Sequenced by risk-adjusted priority: one defensive move that's more urgent than it looks, one low-risk growth play, and one higher-upside-but-higher-guardrail play that deserves the most operational discipline.</p>
+
+    <div class="rec">
+      <h3><span class="rec-tag">A · Defend</span>Build out cash management before rate cuts compress the cash-interest base</h3>
+
+      <h4>Opportunity</h4>
+      <p>Cash interest is still 26% of revenue (~$327K/mo) and is the single most macro-exposed line in the book — when the Fed cuts, this margin compresses directly. Meanwhile, FDIC sweep launched in May 2024 and has barely moved, sitting at ~$2K/mo through Apr 2025. That's a launched-but-dormant product sitting on top of a $327K/mo revenue line that's structurally at risk. The economics are also better in sweep on a per-dollar basis through a cut cycle: sweep partnerships typically pay a more rate-durable fee/spread structure, and the higher pass-through yield is a competitive moat against Robinhood and IBKR.</p>
+
+      <h4>Action</h4>
+      <p>Two-part rollout:</p>
+      <ul>
+        <li><em>Make sweep the visible default</em> for new funded accounts above an idle-cash threshold (e.g., $5K), with one-click opt-out and a transparent "this is how the yield works" disclosure.</li>
+        <li><em>Run a targeted reactivation to the existing base</em>: identify accounts with >$10K idle cash and surface a one-screen enrollment flow, emphasizing the yield delta vs leaving cash in plain interest.</li>
+      </ul>
+
+      <h4>Expected impact and how success would be measured</h4>
+      <p>The right measurement frame is not FDIC sweep revenue in isolation — it's <em>total cash-related revenue durability through the rate-cut cycle</em>. Headline metrics: combined (cash interest + FDIC sweep) revenue per dollar of platform cash balance MoM; % of total platform cash sitting in sweep; net new cash inflows attributable to the higher-yield offering.</p>
+      <p>Guardrail metrics I'd hold the team to:</p>
+      <ul>
+        <li><em>Net cash outflows.</em> If users feel the default opt-in is shady or yields aren't actually competitive, they move money out — and the cash revenue line collapses faster than rate cuts would have caused on their own. Track net deposits and withdrawals weekly during rollout.</li>
+        <li><em>Internal yield spread vs published yield.</em> The temptation will be to widen the spread Alpaca captures and underpay the customer. Cap the gap to a defensible floor relative to Fed Funds; if competitors close the gap, we should know before our users do.</li>
+        <li><em>Complaint volume specifically about the sweep opt-in mechanism.</em> Defaults are legal but reputationally toxic if executed badly. Reversible-in-one-click matters.</li>
+        <li><em>Concentration risk on partner banks.</em> FDIC limits are $250K per bank; for the top 100 accounts (71% of revenue), individual balances likely exceed that, requiring multi-bank programs. Mishandling this is a real operational/regulatory exposure.</li>
+      </ul>
+
+      <h4>Assumptions</h4>
+      <p>FDIC sweep didn't scale because of distribution, not product issues (worth validating against engagement data the dataset doesn't include); the Fed continues cutting from here; Alpaca has bank-partnership capacity to handle the volume.</p>
+    </div>
+
+    <div class="rec">
+      <h3><span class="rec-tag">B · Expand</span>Push market data subscriptions deeper into the active base</h3>
+
+      <h4>Opportunity</h4>
+      <p>Market data is the cleanest success in the dataset: it launched Dec 2023, scaled to ~$111K/mo within 16 months, and is the lowest-volatility stream in the entire book — it behaves like a SaaS subscription. But only ~1,740 monthly active subscribers out of 25,498 total accounts, and ~24% attach against the ~7,150 revenue-generating accounts. There's significant room before saturation, and incremental subscriber revenue is the highest-quality revenue Alpaca generates — recurring, high-margin, and uncorrelated with trading activity.</p>
+
+      <h4>Action</h4>
+      <p>Two moves: bundle a Level-2 / pro data tier into options approval and margin enrollment (the users who already self-identify as more serious); and add a free-trial trigger — 30 days of Level-2 unlocked after a user's 10th trade in a month. The product sells itself if surfaced at the right moment.</p>
+
+      <h4>Expected impact and how success would be measured</h4>
+      <p>Going from ~24% subscriber penetration of active accounts to 35% would add ~800 net subscribers; at current per-subscriber revenue of ~$64/mo, that's roughly +$50K/mo recurring — modest in absolute terms, but the lowest-risk, most rate-insensitive growth on the platform.</p>
+      <p>Track subscriber count and net adds, free-trial-to-paid conversion, monthly retention curves, and subscriber NPS.</p>
+      <p>Guardrail metrics:</p>
+      <ul>
+        <li><em>Subscriber churn after the first paid month.</em> If trial-to-paid conversion is high but month-2 retention is bad, we're pulling forward revenue and damaging trust — users feel tricked into a subscription they didn't notice. The Robinhood Gold playbook works only when month-2 retention holds.</li>
+        <li><em>Self-cancellation friction complaints.</em> One click to cancel; track support tickets that mention "trying to cancel."</li>
+        <li><em>Composite ARPU on subscribers vs non-subscribers.</em> If subscribers' trading revenue drops after subscribing (because they're now paying for data they used to get free, and trading less to compensate), the net effect could be negative. Watch <em>combined</em> revenue, not data revenue in isolation.</li>
+        <li><em>Options approval drop-off if bundled.</em> If bundling data into options activation makes the options funnel feel like an upsell trap, options activation suffers too. A/B test the bundle carefully before rolling out.</li>
+      </ul>
+
+      <h4>Assumptions</h4>
+      <p>The ~$64/subscriber/month blended figure is reasonably representative of steady-state economics (the stream is still ramping, so the truth could go either way); data-feed licensing costs scale sub-linearly with subscriber count so gross margin holds at scale; the unsubscribed active-trader segment has a real unmet need vs being satisfied with the free tier (worth validating with a small survey).</p>
+    </div>
+
+    <div class="rec">
+      <h3><span class="rec-tag">C · Grow carefully</span>Cross-sell options to existing stock PFOF traders, conservatively</h3>
+
+      <h4>Opportunity</h4>
+      <p>Options PFOF is the fastest-growing product launch in the dataset — $0 → $124K/mo in 12 months — and the highest-revenue-per-account stream we operate. But adoption is narrow: ~371 active options accounts in recent months vs ~1,580 active stock PFOF accounts, so the within-platform overlap is only ~23%. Inside the options book, 79% of revenue comes from 10 of 405 accounts, which says product-market fit is real for sophisticated users; we just haven't broadened the base. This is the highest-upside move on the list — and the one with the most ways to do damage.</p>
+
+      <h4>Action</h4>
+      <p>Run a targeted in-app activation flow for users with ≥6 months of stock trading history and a minimum balance threshold. Lead with conservative strategies (covered calls on existing positions, cash-secured puts) — not vertical spreads or 0DTE. Gate options approval behind a suitability assessment stricter than the regulatory minimum. Ship a paper-options sandbox before live trading and surface educational tooltips on Greeks and implied volatility at the strike-selection step.</p>
+
+      <h4>Expected impact and how success would be measured</h4>
+      <p>If we lift adoption among existing stock PFOF traders from ~23% to ~40% at the current per-account economics (~$335/active options account/month), that's roughly +270 net active options users and ~+$90K/mo at the 12-month mark — a ~7–8% lift on the total book.</p>
+      <p>Headline metrics: monthly active options accounts, options revenue per active account, conversion rate of stock-only users into options users.</p>
+      <p>This is the recommendation where guardrails matter most. Maximizing PFOF off inexperienced users is the textbook way to grow ARPU and destroy LTV simultaneously — exactly the failure mode to guard against. The success bar is not "+X% revenue" alone, it's "+X% revenue <em>and</em> options-cohort 180-day churn within Y points of the stock-only baseline <em>and</em> NPS not down more than Z." Specifically:</p>
+      <ul>
+        <li><em>Churn of options-activated users at 90 and 180 days vs the stock-only cohort.</em> Materially higher churn means the activation flow is shoving the wrong users in.</li>
+        <li><em>90-day account drawdown distribution for newly activated options users.</em> If the P10 user loses more than a defined % of their balance, the suitability filter is too loose.</li>
+        <li><em>NPS by tenure in options.</em> Survey newly activated users at 30 and 90 days; a drop beyond a defined threshold vs the platform average is a real signal, not noise.</li>
+        <li><em>Support ticket and complaint volume per active options account</em>, with a categorical lens on "didn't understand the product."</li>
+        <li><em>Concentration of trading in 0DTE / weekly contracts among new options users.</em> If they skew toward the most lottery-ticket-like instruments, the educational content isn't working — pause the funnel.</li>
+        <li><em>Reg BI / FINRA reportable events.</em> Non-negotiable. One serious complaint cluster can override the entire revenue case.</li>
+      </ul>
+
+      <h4>Assumptions</h4>
+      <p>The current 405 active options accounts are mostly self-selected sophisticates, so there's genuine headroom by broadening the base rather than hitting a ceiling; conservative-strategy onboarding retains better than aggressive onboarding (well-supported by industry data but should be A/B tested in-house); regulatory and operational infrastructure exists to support tighter-than-minimum suitability without slowing the funnel to a halt.</p>
+    </div>
+
+    <h2><span class="num">07 · Caveats</span>What I'd verify before drawing harder conclusions</h2>
+    <ul>
+      <li>The <code>non_retail_revenue</code> column and <code>is_legal_entity = True</code> accounts in a B2C cut need a definition check — they may belong here, but I'd want to understand why.</li>
+      <li>The negative non-retail value in Apr '25 needs explanation — reversal, refund, accounting adjustment?</li>
+      <li>With only 12–17 live months for the new streams, correlation estimates involving them are statistically thin.</li>
+      <li>The dataset has no funnel data (account creation, funding, first trade), no AUM, and no rate-environment context — all of which would meaningfully sharpen the recommendations.</li>
+    </ul>
+
+  </article>
+
+  <aside class="sidebar">
+    <div class="placeholder">
+      <div class="placeholder-icon">+</div>
+      <div class="placeholder-label">Placeholder</div>
+      <div class="placeholder-hint">This sidebar is reserved. Replace with the content you want to surface alongside the analysis.</div>
+    </div>
+  </aside>
+</main>
+
+<footer>
+  Alpaca · Product take-home submission · Prepared from PM_Interview_Data
+</footer>
+
+<script>
+const FIRST_LABELS = ["May '23","Jun '23","Jul '23","Aug '23","Sep '23","Oct '23","Nov '23","Dec '23","Jan '24","Feb '24","Mar '24","Apr '24","May '24","Jun '24","Jul '24","Aug '24","Sep '24","Oct '24","Nov '24","Dec '24","Jan '25","Feb '25","Mar '25","Apr '25"];
+const SHORT_LABELS = ["May '23","Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan '24","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan '25","Feb","Mar","Apr"];
+
+const SERIES = [
+  { label: 'Retail stock PFOF',   color: '#185FA5', data: [179.3,131.6,117.6,113.1,66.9,99.9,112.4,104.3,122.3,128.6,137.5,139.6,139.9,177.6,288.7,408.6,541.1,462.8,374.2,418.7,460.1,490.5,629.7,577.0] },
+  { label: 'Cash interest',       color: '#0F6E56', data: [143.9,148.6,163.4,184.1,162.7,153.1,145.6,155.6,150.0,148.6,187.4,185.1,249.2,232.6,283.7,402.4,392.4,373.3,338.7,297.0,323.4,258.0,342.8,381.6] },
+  { label: 'Retail options PFOF', color: '#7F77DD', data: [0,0,0,0,0,0,0,0,0,0,0,0,6.9,11.3,42.2,21.9,19.8,62.1,46.9,54.1,60.1,45.8,65.4,124.0] },
+  { label: 'Market data',         color: '#EF9F27', data: [0,0,0,0,0,0,0,0.1,34.9,39.2,46.1,47.9,52.9,59.4,63.5,65.8,70.7,74.7,77.4,83.2,91.9,98.7,109.1,110.9] },
+  { label: 'Margin interest',     color: '#D85A30', data: [36.7,35.1,37.3,41.7,46.9,54.1,45.6,52.0,52.4,55.4,69.5,85.5,98.7,103.6,103.8,101.0,98.3,94.0,92.4,108.9,112.4,113.4,144.7,100.4] },
+  { label: 'Stock borrow',        color: '#D4537E', data: [19.2,20.6,21.8,21.0,7.1,18.3,4.6,20.5,30.6,28.9,35.0,41.1,31.5,32.1,32.2,36.6,51.7,34.9,45.3,48.2,31.5,56.0,52.4,45.8] },
+  { label: 'Non-retail',          color: '#888780', data: [5.1,7.0,17.7,21.7,42.4,79.9,70.1,25.9,17.4,30.2,40.7,15.5,16.3,15.6,4.6,13.9,5.0,42.6,2.1,2.6,6.4,7.8,42.9,-22.0] },
+  { label: 'FDIC sweep',          color: '#97C459', data: [0,0,0,0,0,0,0,0,0,0,0,0,0.1,0.1,0.1,0.2,0.1,0.1,1.9,2.5,2.3,2.0,2.1,2.0] },
+  { label: 'Crypto wallet',       color: '#B4B2A9', data: [0,0,0,0,0,0,0,0.4,0.2,0.2,0.4,0.9,1.3,2.1,0.2,0.4,0.9,6.5,2.1,2.2,4.8,1.5,1.0,0.5] },
+];
+
+const legendEl = document.getElementById('legend1');
+SERIES.forEach(s => {
+  const item = document.createElement('span');
+  item.className = 'item';
+  item.innerHTML = '<span class="swatch" style="background:' + s.color + '"></span>' + s.label;
+  legendEl.appendChild(item);
+});
+
+new Chart(document.getElementById('chart1'), {
+  type: 'line',
+  data: {
+    labels: FIRST_LABELS,
+    datasets: SERIES.map(s => ({
+      label: s.label, data: s.data,
+      backgroundColor: s.color, borderColor: s.color, borderWidth: 0,
+      fill: true, tension: 0.25, pointRadius: 0, pointHoverRadius: 4,
+    }))
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => ctx.dataset.label + ': $' + Math.round(ctx.parsed.y) + 'K',
+          footer: (items) => 'Total: $' + Math.round(items.reduce((a, i) => a + i.parsed.y, 0)) + 'K',
+        }
+      }
+    },
+    scales: {
+      x: { stacked: true, grid: { display: false }, ticks: { autoSkip: false, maxRotation: 60, minRotation: 60, font: { size: 10, family: 'JetBrains Mono' }, color: '#7A746A' } },
+      y: { stacked: true, ticks: { callback: (v) => '$' + v + 'K', font: { family: 'JetBrains Mono' }, color: '#7A746A' }, grid: { color: 'rgba(122,116,106,0.12)' } }
+    }
+  }
+});
+
+const PANELS = [
+  { label: 'Retail stock PFOF',   color: '#185FA5', note: '37.5% of total',  data: SERIES[0].data },
+  { label: 'Cash interest',       color: '#0F6E56', note: '33.9% of total',  data: SERIES[1].data },
+  { label: 'Margin interest',     color: '#D85A30', note: '11.0% of total',  data: SERIES[4].data },
+  { label: 'Market data',         color: '#EF9F27', note: 'launched Dec ’23', data: SERIES[3].data },
+  { label: 'Stock borrow',        color: '#D4537E', note: '4.5% of total',   data: SERIES[5].data },
+  { label: 'Retail options PFOF', color: '#7F77DD', note: 'launched May ’24', data: SERIES[2].data },
+  { label: 'Non-retail',          color: '#888780', note: 'highly volatile',  data: SERIES[6].data },
+  { label: 'Crypto wallet',       color: '#5F5E5A', note: 'launched Dec ’23', data: SERIES[8].data },
+  { label: 'FDIC sweep',          color: '#97C459', note: 'launched May ’24', data: SERIES[7].data },
+];
+
+const smGrid = document.getElementById('smGrid');
+PANELS.forEach((p, i) => {
+  const cell = document.createElement('div');
+  cell.className = 'sm-cell';
+  cell.innerHTML = `
+    <div class="sm-head">
+      <div class="name">${p.label}</div>
+      <div class="note">${p.note}</div>
+    </div>
+    <div class="sm-canvas"><canvas id="sm${i}" role="img" aria-label="${p.label} monthly trajectory"></canvas></div>
+  `;
+  smGrid.appendChild(cell);
+
+  new Chart(document.getElementById('sm' + i), {
+    type: 'line',
+    data: {
+      labels: SHORT_LABELS,
+      datasets: [{
+        data: p.data, borderColor: p.color, backgroundColor: p.color + '22',
+        borderWidth: 1.5, fill: true, tension: 0.3, pointRadius: 0, pointHoverRadius: 3,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: {
+        callbacks: { label: (ctx) => '$' + (ctx.parsed.y >= 0 ? '' : '-') + Math.abs(Math.round(ctx.parsed.y * 10) / 10) + 'K' }
+      }},
+      scales: {
+        x: { display: false },
+        y: { ticks: { font: { size: 9, family: 'JetBrains Mono' }, color: '#7A746A', maxTicksLimit: 3, callback: (v) => '$' + v + 'K' }, grid: { color: 'rgba(122,116,106,0.08)' } }
+      }
+    }
+  });
+});
+
+const CORR_LABELS = ['Stk PFOF', 'Cash int', 'Margin', 'Mkt data', 'Borrow', 'Opt PFOF', 'Non-ret', 'Crypto', 'FDIC'];
+const MATRIX = [
+  [ 1.00,  0.30,  0.08,  0.05,  0.12,  0.18, -0.05, -0.28, -0.46],
+  [ 0.30,  1.00,  0.18, -0.15, -0.09,  0.11,  0.15, -0.09, -0.24],
+  [ 0.08,  0.18,  1.00, -0.08,  0.23, -0.16,  0.16, -0.02, -0.06],
+  [ 0.05, -0.15, -0.08,  1.00,  0.36, -0.01, -0.13, -0.15, -0.32],
+  [ 0.12, -0.09,  0.23,  0.36,  1.00, -0.50, -0.22, -0.38,  0.22],
+  [ 0.18,  0.11, -0.16, -0.01, -0.50,  1.00,  0.27,  0.31, -0.26],
+  [-0.05,  0.15,  0.16, -0.13, -0.22,  0.27,  1.00,  0.70, -0.25],
+  [-0.28, -0.09, -0.02, -0.15, -0.38,  0.31,  0.70,  1.00, -0.23],
+  [-0.46, -0.24, -0.06, -0.32,  0.22, -0.26, -0.25, -0.23,  1.00],
+];
+
+function styleFor(v) {
+  if (v >= 0.5)   return { bg: '#185FA5', fg: '#E6F1FB' };
+  if (v >= 0.3)   return { bg: '#85B7EB', fg: '#042C53' };
+  if (v >= 0.1)   return { bg: '#E6F1FB', fg: '#0C447C' };
+  if (v > -0.1)   return { bg: '#F1EFE8', fg: '#5F5E5A' };
+  if (v > -0.3)   return { bg: '#FAECE7', fg: '#712B13' };
+  if (v > -0.5)   return { bg: '#F0997B', fg: '#4A1B0C' };
+  return { bg: '#993C1D', fg: '#FAECE7' };
+}
+
+const HIGHLIGHTS = new Set(['6-7','7-6','4-5','5-4','0-8','8-0','3-4','4-3']);
+
+const corrGrid = document.getElementById('corrGrid');
+const corner = document.createElement('div');
+corrGrid.appendChild(corner);
+CORR_LABELS.forEach(l => {
+  const cell = document.createElement('div');
+  cell.className = 'col-header';
+  cell.textContent = l;
+  corrGrid.appendChild(cell);
+});
+MATRIX.forEach((row, i) => {
+  const rowLabel = document.createElement('div');
+  rowLabel.className = 'row-header';
+  rowLabel.textContent = CORR_LABELS[i];
+  corrGrid.appendChild(rowLabel);
+  row.forEach((v, j) => {
+    const cell = document.createElement('div');
+    const s = styleFor(v);
+    const isDiag = i === j;
+    const isHL = HIGHLIGHTS.has(i + '-' + j);
+    cell.className = 'cell' + (isDiag ? ' diag' : '') + (isHL ? ' highlight' : '');
+    cell.style.background = s.bg;
+    cell.style.color = s.fg;
+    cell.textContent = v.toFixed(2);
+    corrGrid.appendChild(cell);
+  });
+});
+</script>
+</body>
+</html>
