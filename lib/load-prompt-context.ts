@@ -55,7 +55,7 @@ export function loadDataSummary(): DataSummaryFile {
       available: false,
       tableName: "pm_revenue",
       message:
-        "Data summary missing — run npm run ingest:data with PM_DATA_CSV pointing at the CSV.",
+        "Data summary missing — run npm run ingest:data (expects source-data/pm-interview-query-result.csv or PM_DATA_CSV).",
     };
   }
   try {

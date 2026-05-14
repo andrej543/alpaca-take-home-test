@@ -1,4 +1,4 @@
-import { createReadStream, existsSync, mkdirSync, unlinkSync, writeFileSync, copyFileSync } from "fs";
+import { createReadStream, existsSync, mkdirSync, unlinkSync, writeFileSync } from "fs";
 import path from "path";
 import { parse } from "csv-parse";
 import Database from "better-sqlite3";
@@ -8,11 +8,8 @@ const DATA_DIR = path.join(ROOT, "data");
 const DB_PATH = path.join(DATA_DIR, "pm.sqlite");
 const SUMMARY_PATH = path.join(DATA_DIR, "data-summary.json");
 
-const DEFAULT_CSV = path.join(
-  ROOT,
-  "..",
-  "PM Interview Data - Query result.csv",
-);
+/** Committed source CSV (build-only; kept outside `data/` so Next tracing does not bundle it into API routes). */
+const DEFAULT_CSV = path.join(ROOT, "source-data", "pm-interview-query-result.csv");
 
 type Summary = {
   available: boolean;
@@ -51,7 +48,7 @@ async function main() {
     const summary: Summary = {
       available: false,
       tableName: "pm_revenue",
-      message: `CSV not found at ${csvPath}. Set PM_DATA_CSV or place the file next to the project folder.`,
+      message: `CSV not found at ${csvPath}. Set PM_DATA_CSV or add source-data/pm-interview-query-result.csv.`,
     };
     writeFileSync(SUMMARY_PATH, JSON.stringify(summary, null, 2));
     console.warn(summary.message);
@@ -196,13 +193,6 @@ async function main() {
   };
 
   writeFileSync(SUMMARY_PATH, JSON.stringify(summary, null, 2));
-  try {
-    const csvCopy = path.join(DATA_DIR, "pm-source.csv");
-    copyFileSync(csvPath, csvCopy);
-    console.log(`Copied source CSV to ${csvCopy} (same data as pm.sqlite; for ops / reproducibility).`);
-  } catch (e) {
-    console.warn("Could not copy CSV to data/pm-source.csv:", e);
-  }
   console.log(`Wrote ${DB_PATH} and ${SUMMARY_PATH} (${rowCount} rows)`);
 }
 
