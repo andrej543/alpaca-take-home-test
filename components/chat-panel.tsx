@@ -123,7 +123,7 @@ function MessageView({ message }: { message: UIMessage }) {
   );
 }
 
-export function ChatPanel() {
+export function ChatPanel({ embedded = false }: { embedded?: boolean }) {
   const [input, setInput] = useState("");
   const [contextMode, setContextMode] = useState<ContextMode>("both");
   const modeRef = useRef<ContextMode>("both");
@@ -156,7 +156,7 @@ export function ChatPanel() {
   }
 
   return (
-    <div className="chat-shell">
+    <div className={`chat-shell${embedded ? " chat-shell--embedded" : ""}`}>
       <header className="chat-header">
         <div>
           <p className="chat-kicker">Alpaca take-home</p>
@@ -165,9 +165,11 @@ export function ChatPanel() {
             Ask about the narrative analysis page, the PM revenue extract, or both.
           </p>
         </div>
-        <a className="chat-report-link" href="/alpaca-b2c-analysis.html">
-          Back to report
-        </a>
+        {embedded ? null : (
+          <a className="chat-report-link" href="/alpaca-b2c-analysis.html">
+            Back to report
+          </a>
+        )}
       </header>
 
       <section className="chat-controls" aria-label="Context sources">

@@ -8,6 +8,14 @@ export const metadata: Metadata = {
     "Ask questions grounded in the B2C analysis page and PM revenue dataset.",
 };
 
-export default function ChatPage() {
-  return <ChatPanel />;
+type ChatPageProps = {
+  searchParams: Promise<{ embed?: string | string[] }>;
+};
+
+export default async function ChatPage({ searchParams }: ChatPageProps) {
+  const sp = await searchParams;
+  const raw = sp.embed;
+  const flag = Array.isArray(raw) ? raw[0] : raw;
+  const embedded = flag === "1" || flag === "true";
+  return <ChatPanel embedded={embedded} />;
 }

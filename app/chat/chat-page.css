@@ -7,6 +7,85 @@
   padding: 28px 24px 120px;
 }
 
+.chat-shell--embedded {
+  max-width: none;
+  margin: 0;
+  /* Viewport-bound height so .messages-scroll flexes and scrolls; min-height
+     alone lets this shell grow with content and overflow:hidden clips replies. */
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100dvh;
+  min-height: 0;
+  padding: 16px 12px 108px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.chat-shell--embedded .chat-header,
+.chat-shell--embedded .chat-controls,
+.chat-shell--embedded .chat-error,
+.chat-shell--embedded .dataset-analyzing-banner {
+  flex-shrink: 0;
+}
+
+.chat-shell--embedded .chat-header {
+  gap: 12px;
+  padding-bottom: 14px;
+  margin-bottom: 12px;
+}
+
+.chat-shell--embedded .chat-title {
+  font-size: clamp(1.35rem, 4.5vw, 1.65rem);
+}
+
+.chat-shell--embedded .chat-sub {
+  font-size: 13px;
+  max-width: none;
+}
+
+.chat-shell--embedded .chat-controls {
+  margin-bottom: 12px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.chat-shell--embedded .controls-label {
+  width: 100%;
+}
+
+.chat-shell--embedded .segmented {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+}
+
+.chat-shell--embedded .segment-btn {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 6px;
+  font-size: 12px;
+}
+
+.chat-shell--embedded .messages-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.chat-shell--embedded .bubble {
+  max-width: 100%;
+}
+
+.chat-shell--embedded .composer {
+  max-width: none;
+}
+
+.chat-shell--embedded .composer-wrap {
+  padding: 10px 8px;
+}
+
 .chat-header {
   display: flex;
   justify-content: space-between;

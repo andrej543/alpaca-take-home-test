@@ -161,49 +161,55 @@
   .content { min-width: 0; }
   .sidebar { min-width: 0; }
 
-  /* ====== Sidebar placeholder ====== */
-  .placeholder {
+  /* ====== Sidebar: embedded chat (Next.js app) ====== */
+  .chat-embed {
     position: sticky;
     top: 32px;
-    background: var(--surface-muted);
-    border: 1.5px dashed var(--border-strong);
+    align-self: start;
+    width: 100%;
+    height: calc(100vh - 80px);
+    max-height: min(920px, calc(100vh - 48px));
+    min-height: 480px;
     border-radius: 8px;
-    min-height: calc(100vh - 80px);
-    padding: 32px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    color: var(--ink-3);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: 0 10px 36px rgba(26, 26, 26, 0.07);
+    overflow: hidden;
   }
-  .placeholder-icon {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    border: 1.5px dashed var(--border-strong);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--serif);
-    font-size: 28px;
-    font-style: italic;
-    color: var(--ink-3);
+  .chat-embed iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
   }
-  .placeholder-label {
-    font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--ink-3);
+
+  @keyframes chat-embed-spotlight {
+    0% {
+      box-shadow: 0 10px 36px rgba(26, 26, 26, 0.07);
+      border-color: var(--border);
+    }
+    40% {
+      box-shadow:
+        0 12px 44px rgba(26, 26, 26, 0.09),
+        0 0 0 1px rgba(15, 110, 86, 0.28),
+        0 0 28px rgba(15, 110, 86, 0.18);
+      border-color: rgba(15, 110, 86, 0.42);
+    }
+    100% {
+      box-shadow: 0 10px 36px rgba(26, 26, 26, 0.07);
+      border-color: var(--border);
+    }
   }
-  .placeholder-hint {
-    font-family: var(--sans);
-    font-size: 14px;
-    color: var(--ink-3);
-    text-align: center;
-    max-width: 240px;
-    line-height: 1.5;
+
+  .chat-embed.chat-embed--spotlight {
+    animation: chat-embed-spotlight 2.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chat-embed.chat-embed--spotlight {
+      animation-duration: 1.35s;
+      animation-timing-function: ease;
+    }
   }
 
   /* ====== Content typography ====== */
@@ -546,7 +552,12 @@
   }
   @media (max-width: 900px) {
     .layout { grid-template-columns: 1fr; gap: 40px; padding: 48px 32px; }
-    .placeholder { position: static; min-height: 320px; }
+    .chat-embed {
+      position: static;
+      height: min(85vh, 720px);
+      max-height: none;
+      min-height: 420px;
+    }
     .hero { padding: 56px 32px 40px; }
     .topbar { padding: 16px 32px; }
     .corr-grid { font-size: 10px; }
@@ -565,7 +576,7 @@
 <div class="topbar">
   <div class="brand">Alpaca Take Home Test - Completed by Andrej Hano</div>
   <div class="meta" style="display:flex;align-items:center;gap:16px;">
-    <a href="/chat">Chat with data</a>
+    <a href="#analysis-chat">Chat with data</a>
     <span>B2C revenue · May 2023 – Apr 2025</span>
   </div>
 </div>
@@ -859,11 +870,14 @@
 
   </article>
 
-  <aside class="sidebar">
-    <div class="placeholder">
-      <div class="placeholder-icon">+</div>
-      <div class="placeholder-label">Placeholder</div>
-      <div class="placeholder-hint">This sidebar is reserved. Replace with the content you want to surface alongside the analysis.</div>
+  <aside class="sidebar" id="analysis-chat" aria-label="Chat with the data">
+    <div class="chat-embed">
+      <iframe
+        title="Chat with the data"
+        src="/chat?embed=1"
+        loading="eager"
+        referrerpolicy="strict-origin-when-cross-origin"
+      ></iframe>
     </div>
   </aside>
 </main>
@@ -1023,6 +1037,41 @@ MATRIX.forEach((row, i) => {
     corrGrid.appendChild(cell);
   });
 });
+
+(function () {
+  var embed = document.querySelector('#analysis-chat .chat-embed');
+  if (!embed || !('IntersectionObserver' in window)) return;
+
+  function isFullyVisible(entry) {
+    if (!entry.isIntersecting) return false;
+    var elH = entry.boundingClientRect.height;
+    var rootH =
+      entry.rootBounds && entry.rootBounds.height > 0
+        ? entry.rootBounds.height
+        : window.innerHeight;
+    var visH = entry.intersectionRect.height;
+    var eps = 3;
+    if (elH <= rootH + eps) return visH >= elH - eps;
+    return visH >= rootH - eps;
+  }
+
+  var played = false;
+  var obs = new IntersectionObserver(
+    function (entries) {
+      if (played) return;
+      for (var i = 0; i < entries.length; i++) {
+        if (isFullyVisible(entries[i])) {
+          played = true;
+          obs.disconnect();
+          embed.classList.add('chat-embed--spotlight');
+          return;
+        }
+      }
+    },
+    { threshold: [0, 0.25, 0.5, 0.75, 1] }
+  );
+  obs.observe(embed);
+})();
 </script>
 </body>
 </html>
