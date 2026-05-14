@@ -159,7 +159,6 @@ export function ChatPanel({ embedded = false }: { embedded?: boolean }) {
     <div className={`chat-shell${embedded ? " chat-shell--embedded" : ""}`}>
       <header className="chat-header">
         <div>
-          <p className="chat-kicker">Alpaca take-home</p>
           <h1 className="chat-title">Chat with the data</h1>
           <p className="chat-sub">
             Ask about the narrative analysis page, the PM revenue extract, or both.

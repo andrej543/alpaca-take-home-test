@@ -1,10 +1,11 @@
 .chat-shell {
+  --chat-composer-spacer: calc(200px + env(safe-area-inset-bottom, 0px));
   max-width: 880px;
   margin: 0 auto;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: 28px 24px 120px;
+  padding: 28px 24px 36px;
 }
 
 .chat-shell--embedded {
@@ -16,7 +17,9 @@
   height: 100dvh;
   max-height: 100dvh;
   min-height: 0;
-  padding: 16px 12px 108px;
+  /* Bottom inset is small: clearance under the last reply lives inside
+     .messages-inner (padding-bottom) so it scrolls above the fixed composer. */
+  padding: 16px 12px 28px;
   overflow: hidden;
   box-sizing: border-box;
 }
@@ -35,7 +38,7 @@
 }
 
 .chat-shell--embedded .chat-title {
-  font-size: clamp(1.35rem, 4.5vw, 1.65rem);
+  font-size: clamp(2rem, 5.5vw, 2.75rem);
 }
 
 .chat-shell--embedded .chat-sub {
@@ -96,21 +99,12 @@
   margin-bottom: 16px;
 }
 
-.chat-kicker {
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin: 0 0 8px;
-}
-
 .chat-title {
   font-family: var(--serif);
   font-weight: 520;
-  font-size: clamp(1.75rem, 4vw, 2.35rem);
-  line-height: 1.15;
-  margin: 0 0 8px;
+  font-size: clamp(2.85rem, 8vw, 4.75rem);
+  line-height: 1.08;
+  margin: 0 0 10px;
   color: var(--ink);
 }
 
@@ -221,6 +215,8 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
+  /* Pad scroll column so the last reply can sit above the fixed composer. */
+  padding-bottom: var(--chat-composer-spacer);
 }
 
 .msg-row {
@@ -421,7 +417,7 @@
 
 @media (max-width: 640px) {
   .chat-shell {
-    padding: 20px 16px 124px;
+    padding: 20px 16px 32px;
   }
 
   .chat-header {

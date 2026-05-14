@@ -188,12 +188,21 @@
       box-shadow: 0 10px 36px rgba(26, 26, 26, 0.07);
       border-color: var(--border);
     }
-    40% {
+    32% {
       box-shadow:
-        0 12px 44px rgba(26, 26, 26, 0.09),
-        0 0 0 1px rgba(15, 110, 86, 0.28),
-        0 0 28px rgba(15, 110, 86, 0.18);
-      border-color: rgba(15, 110, 86, 0.42);
+        0 16px 56px rgba(26, 26, 26, 0.12),
+        0 0 0 2px rgba(15, 110, 86, 0.45),
+        0 0 0 8px rgba(15, 110, 86, 0.14),
+        0 0 52px rgba(15, 110, 86, 0.32);
+      border-color: rgba(15, 110, 86, 0.65);
+    }
+    52% {
+      box-shadow:
+        0 14px 50px rgba(26, 26, 26, 0.1),
+        0 0 0 2px rgba(15, 110, 86, 0.38),
+        0 0 0 6px rgba(15, 110, 86, 0.1),
+        0 0 44px rgba(15, 110, 86, 0.26);
+      border-color: rgba(15, 110, 86, 0.52);
     }
     100% {
       box-shadow: 0 10px 36px rgba(26, 26, 26, 0.07);
@@ -201,14 +210,59 @@
     }
   }
 
+  @keyframes chat-embed-attention-idle {
+    0%,
+    100% {
+      box-shadow:
+        inset 0 0 0 1px rgba(15, 110, 86, 0.05),
+        inset 0 0 28px rgba(15, 110, 86, 0);
+    }
+    50% {
+      box-shadow:
+        inset 0 0 0 1px rgba(15, 110, 86, 0.16),
+        inset 0 0 40px rgba(15, 110, 86, 0.06);
+    }
+  }
+
+  @keyframes chat-embed-attention-idle-reduce {
+    0%,
+    100% {
+      box-shadow:
+        inset 0 0 0 1px rgba(15, 110, 86, 0.04),
+        inset 0 0 20px rgba(15, 110, 86, 0);
+    }
+    50% {
+      box-shadow:
+        inset 0 0 0 1px rgba(15, 110, 86, 0.1),
+        inset 0 0 28px rgba(15, 110, 86, 0.04);
+    }
+  }
+
   .chat-embed.chat-embed--spotlight {
-    animation: chat-embed-spotlight 2.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+    --chat-spotlight-ms: 2.85s;
+    animation: chat-embed-spotlight var(--chat-spotlight-ms) cubic-bezier(0.2, 0.85, 0.35, 1) both;
+  }
+
+  .chat-embed.chat-embed--spotlight::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 2;
+    animation: chat-embed-attention-idle 5.75s ease-in-out infinite;
+    animation-delay: var(--chat-spotlight-ms);
   }
 
   @media (prefers-reduced-motion: reduce) {
     .chat-embed.chat-embed--spotlight {
-      animation-duration: 1.35s;
+      --chat-spotlight-ms: 1.55s;
       animation-timing-function: ease;
+    }
+    .chat-embed.chat-embed--spotlight::after {
+      animation-name: chat-embed-attention-idle-reduce;
+      animation-duration: 14s;
+      animation-timing-function: ease-in-out;
     }
   }
 
@@ -538,11 +592,45 @@
   /* ====== Footer ====== */
   footer {
     border-top: 1px solid var(--border);
-    padding: 36px 48px;
+    padding: 48px 48px 40px;
     color: var(--ink-3);
     font-size: 13px;
+    background: var(--surface-muted);
+  }
+  .footer-inner {
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  .sources {
+    margin-bottom: 28px;
+  }
+  .sources-title {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    margin: 0 0 14px;
+  }
+  .sources ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+  .sources li + li { margin-top: 8px; }
+  .sources a { font-weight: 500; }
+  .footer-meta {
+    margin: 0;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
     font-family: var(--mono);
+    font-size: 12px;
     text-align: center;
+    color: var(--ink-3);
+    letter-spacing: 0.02em;
   }
 
   /* ====== Responsive ====== */
@@ -560,6 +648,7 @@
     }
     .hero { padding: 56px 32px 40px; }
     .topbar { padding: 16px 32px; }
+    footer { padding-left: 32px; padding-right: 32px; }
     .corr-grid { font-size: 10px; }
   }
   @media (max-width: 600px) {
@@ -883,7 +972,24 @@
 </main>
 
 <footer>
-  Alpaca · Product take-home submission · Prepared from PM_Interview_Data
+  <div class="footer-inner">
+    <section class="sources" aria-labelledby="sources-heading">
+      <h2 class="sources-title" id="sources-heading">Sources</h2>
+      <ul>
+        <li>
+          <a
+            href="https://docs.google.com/spreadsheets/d/1BlRqVglx6JUA_wWWv2pJPVix7Qiab17D-yRXckmvTSA/edit?gid=499357054#gid=499357054"
+            target="_blank"
+            rel="noopener noreferrer"
+          >PM Interview Data</a>
+        </li>
+        <li>
+          <a href="/Product_THT.pdf" target="_blank" rel="noopener noreferrer">Alpaca - Take Home Assignment for Product Interview</a>
+        </li>
+      </ul>
+    </section>
+    <p class="footer-meta">Alpaca · Product take-home submission · Prepared from PM_Interview_Data</p>
+  </div>
 </footer>
 
 <script>
