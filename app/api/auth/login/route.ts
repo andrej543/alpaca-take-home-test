@@ -73,13 +73,15 @@ export async function POST(request: NextRequest) {
     const fail = new URL("/login", request.url);
     fail.searchParams.set("error", "1");
     fail.searchParams.set("from", safeRedirect);
-    return NextResponse.redirect(fail);
+    // 303 so the browser follows with GET. NextResponse.redirect defaults to 307,
+    // which replays POST on `/` and breaks HTML form login (blank / 405).
+    return NextResponse.redirect(fail, 303);
   }
 
   const token = await createSessionToken(expected);
   const landing = normalizePostLoginRedirect(safeRedirect);
   const destination = new URL(landing, request.url);
-  const res = NextResponse.redirect(destination);
+  const res = NextResponse.redirect(destination, 303);
   res.cookies.set(SITE_SESSION_COOKIE, token, {
     httpOnly: true,
     secure: isRequestHttps(request),
