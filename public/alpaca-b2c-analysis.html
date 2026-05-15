@@ -102,15 +102,30 @@
     color: var(--accent);
     font-variation-settings: "SOFT" 100, "opsz" 144;
   }
-  .dek {
-    font-family: var(--sans);
-    font-size: 20px;
-    line-height: 1.5;
-    color: var(--ink-2);
+  .hero-exec-summary {
     margin: 0 0 48px;
-    max-width: 720px;
+    max-width: 900px;
+  }
+  .hero-exec-summary .exec-summary-label {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+    margin: 0 0 14px;
+  }
+  .hero-exec-summary ul {
+    margin: 0;
+    padding-left: 1.2em;
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--ink-2);
     font-weight: 380;
   }
+  .hero-exec-summary li { margin-bottom: 10px; }
+  .hero-exec-summary li:last-child { margin-bottom: 0; }
   .hero-metrics {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -686,7 +701,17 @@
   <div class="hero-inner">
     <p class="eyebrow">Take-home analysis</p>
     <h1>Inside Alpaca’s Revenue Growth: Growth Drivers, Risks, and Next Moves</h1>
-    <p class="dek">Twenty-four months of monthly revenue across nine streams, 506,892 account-month rows, and one book that quietly tripled. What the trends say, what the new launches did, and where to push next — with the guardrails to do it without breaking trust.</p>
+    <div class="hero-exec-summary">
+      <p class="exec-summary-label">Executive Summary</p>
+      <ul>
+        <li>Revenue 3.5×, accounts 1.4× over the period.</li>
+        <li>Highly concentrated book: 75% of account-months are zero-revenue; top 1% of active accounts drive 65–70% of revenue.</li>
+        <li>Mid-2024 inflection: Simultaneous step-up in trading and cash revenue likely signals net new deposits. Cash likely connected to FED interest rate policy.</li>
+        <li>Two new significant streams: Market data ($111K/mo) and options PFOF ($124K/mo) carry the launch wave; crypto (winter) and FDIC sweep remain immaterial.</li>
+        <li>Cash interest is significant but risky: 26% of revenue, exposed to rate cuts, no natural hedge inside the book.</li>
+        <li>Three plays, sequenced by risk: 1) milk cash interest while high rates (incl. FDIC sweep); 2) expand market data subscriptions as there seems to be PMF; 3) cross-sell options.</li>
+      </ul>
+    </div>
     <div class="hero-metrics">
       <div class="hero-metric">
         <div class="label">Total revenue, 24mo</div>
@@ -882,33 +907,35 @@
     </div>
 
     <h2><span class="num">06 · Action</span>Recommendations</h2>
-    <p class="lede">Sequenced by risk-adjusted priority: one defensive move that's more urgent than it looks, one low-risk growth play, and one higher-upside-but-higher-guardrail play that deserves the most operational discipline.</p>
+    <p class="lede">Sequenced by risk-adjusted priority: one cash capture play while rates are still supportive, one low-risk growth play, and one higher-upside-but-higher-guardrail play that deserves the most operational discipline.</p>
 
     <div class="rec">
-      <h3><span class="rec-tag">A · Defend</span>Build out cash management before rate cuts compress the cash-interest base</h3>
+      <h3><span class="rec-tag">A · Capture</span>Monetize cash deposits aggressively while Fed rates are still high</h3>
 
       <h4>Opportunity</h4>
-      <p>Cash interest is still 26% of revenue (~$327K/mo) and is the single most macro-exposed line in the book — when the Fed cuts, this margin compresses directly. Meanwhile, FDIC sweep launched in May 2024 and has barely moved, sitting at ~$2K/mo through Apr 2025. That's a launched-but-dormant product sitting on top of a $327K/mo revenue line that's structurally at risk. The economics are also better in sweep on a per-dollar basis through a cut cycle: sweep partnerships typically pay a more rate-durable fee/spread structure, and the higher pass-through yield is a competitive moat against Robinhood and IBKR.</p>
+      <p>Cash interest is 26% of revenue (~$327K/mo) and is structurally the most rate-exposed line in the book — but that exposure cuts both ways. As long as Fed rates stay elevated, cash deposits are the single most profitable dollar on the platform: they require no trading activity, no marketing spend per transaction, and scale linearly with balance. FDIC sweep launched in May 2024 but sits at ~$2K/mo through Apr '25 — a fully-built distribution channel that hasn't been turned on. The window to capture this is finite: once cuts arrive in earnest, the absolute spread compresses for everyone and the strategic optionality below disappears.</p>
+      <p>There are two distinct ways to play this, and they're not mutually exclusive.</p>
 
       <h4>Action</h4>
-      <p>Two-part rollout:</p>
-      <ul>
-        <li><em>Make sweep the visible default</em> for new funded accounts above an idle-cash threshold (e.g., $5K), with one-click opt-out and a transparent "this is how the yield works" disclosure.</li>
-        <li><em>Run a targeted reactivation to the existing base</em>: identify accounts with >$10K idle cash and surface a one-screen enrollment flow, emphasizing the yield delta vs leaving cash in plain interest.</li>
-      </ul>
+      <p>A two-track rollout, run in parallel and explicitly framed as a strategic choice per segment rather than a single product decision:</p>
+      <p><em>Track 1 — Revenue extraction.</em> Gradually widen the spread Alpaca captures on idle cash and FDIC sweep balances over the next 2–3 quarters. Pair this with default-in mechanics for new funded accounts above an idle-cash threshold (e.g., $5K), one-click opt-out, and transparent yield disclosure. Target segment: the long tail of B2C accounts who are rate-insensitive and won't shop yield.</p>
+      <p><em>Track 2 — Acquisition lever.</em> For the segments that do shop yield — high-balance B2C accounts and B2B broker-dealer partners — flip the script entirely. Pass through a market-leading yield (narrowing Alpaca's spread) and use it as a wedge to win share. For B2B broker-dealer partners specifically, give them a configurable take-rate dial instead of the current max take rate of 0.25% (if this is still Alpaca's policy): they can choose between offering their end-customers a higher yield (acquisition tool for them) or keeping more of the spread (margin for them). Alpaca makes a smaller per-dollar cut but on a much larger AUM base.</p>
+      <p>The trick is segmentation: don't run one yield curve across the whole book. Run two, and let each segment self-select based on what they actually optimize for. This could also be tied to different pricing offered to broker-dealers.</p>
 
       <h4>Expected impact and how success would be measured</h4>
-      <p>The right measurement frame is not FDIC sweep revenue in isolation — it's <em>total cash-related revenue durability through the rate-cut cycle</em>. Headline metrics: combined (cash interest + FDIC sweep) revenue per dollar of platform cash balance MoM; % of total platform cash sitting in sweep; net new cash inflows attributable to the higher-yield offering.</p>
+      <p>Two different success frames depending on the track. On Track 1, the metric is cash revenue per dollar of platform cash, MoM — extracting more from the same balances. On Track 2, it's net new cash AUM acquired through yield positioning and B2B partner count + AUM growth — using yield as paid acquisition that pays for itself.</p>
+      <p>Combined headline: total cash-related revenue (cash interest + FDIC sweep + B2B revenue share) and % of total platform cash sitting in revenue-bearing programs.</p>
       <p>Guardrail metrics I'd hold the team to:</p>
       <ul>
-        <li><em>Net cash outflows.</em> If users feel the default opt-in is shady or yields aren't actually competitive, they move money out — and the cash revenue line collapses faster than rate cuts would have caused on their own. Track net deposits and withdrawals weekly during rollout.</li>
-        <li><em>Internal yield spread vs published yield.</em> The temptation will be to widen the spread Alpaca captures and underpay the customer. Cap the gap to a defensible floor relative to Fed Funds; if competitors close the gap, we should know before our users do.</li>
-        <li><em>Complaint volume specifically about the sweep opt-in mechanism.</em> Defaults are legal but reputationally toxic if executed badly. Reversible-in-one-click matters.</li>
-        <li><em>Concentration risk on partner banks.</em> FDIC limits are $250K per bank; for the top 100 accounts (71% of revenue), individual balances likely exceed that, requiring multi-bank programs. Mishandling this is a real operational/regulatory exposure.</li>
+        <li><em>Net cash outflows on Track 1.</em> Widening the spread is a calibration exercise — go too far and rate-savvy users notice and move money to external HYSAs. The cash line then collapses faster than rate cuts would have caused on their own. Track net deposits and withdrawals weekly; tie spread widening to a hard threshold on outflows.</li>
+        <li><em>Effective yield vs published yield vs competitor median.</em> Both tracks need a public, auditable yield. If the published yield ever drifts meaningfully below Robinhood/IBKR/Schwab on Track 2, the acquisition thesis breaks immediately.</li>
+        <li><em>B2B partner churn and concentration.</em> Pricing power on broker-dealer partners is a one-way ratchet — once a partner integrates, switching costs are high, but the first partner who feels squeezed publicly will scare off the pipeline. Track partner-level take rates and complaint patterns from day one.</li>
+        <li><em>Complaint volume on default-in mechanics.</em> Defaults are legal but reputationally toxic if executed badly; one-click reversibility is non-negotiable.</li>
+        <li><em>Concentration risk on partner banks.</em> FDIC limits are $250K per bank; for the top 100 accounts (71% of revenue), individual balances likely exceed that, requiring multi-bank programs — might not be a problem as Alpaca is already able to distribute the cash between various partner banks (tbd).</li>
       </ul>
 
       <h4>Assumptions</h4>
-      <p>FDIC sweep didn't scale because of distribution, not product issues (worth validating against engagement data the dataset doesn't include); the Fed continues cutting from here; Alpaca has bank-partnership capacity to handle the volume.</p>
+      <p>Fed rates stay in the current zone for at least 2–4 more quarters — long enough for the spread-widening curve to compound before the macro tailwind fades; FDIC sweep is under-distributed rather than product-broken (validate against engagement data the dataset doesn't include); B2B broker-dealer partners are pricing-sensitive and yield-competitive vs their own end-customers (the standard playbook in the space, but worth confirming with the partner team); Alpaca has the bank-partnership capacity to scale the program multi-fold without operational strain.</p>
     </div>
 
     <div class="rec">
@@ -953,8 +980,6 @@
         <li><em>90-day account drawdown distribution for newly activated options users.</em> If the P10 user loses more than a defined % of their balance, the suitability filter is too loose.</li>
         <li><em>NPS by tenure in options.</em> Survey newly activated users at 30 and 90 days; a drop beyond a defined threshold vs the platform average is a real signal, not noise.</li>
         <li><em>Support ticket and complaint volume per active options account</em>, with a categorical lens on "didn't understand the product."</li>
-        <li><em>Concentration of trading in 0DTE / weekly contracts among new options users.</em> If they skew toward the most lottery-ticket-like instruments, the educational content isn't working — pause the funnel.</li>
-        <li><em>Reg BI / FINRA reportable events.</em> Non-negotiable. One serious complaint cluster can override the entire revenue case.</li>
       </ul>
 
       <h4>Assumptions</h4>
@@ -963,7 +988,7 @@
 
     <h2><span class="num">07 · Caveats</span>What I'd verify before drawing harder conclusions</h2>
     <ul>
-      <li>The <code>non_retail_revenue</code> column and <code>is_legal_entity = True</code> accounts in a B2C cut need a definition check — they may belong here, but I'd want to understand why.</li>
+      <li>The <code>non_retail_revenue</code> column and <code>is_legal_entity = True</code> accounts in a B2C cut need a definition check: it seems like we're listing B2B customers (not necessarily broker-dealer partners) in the B2C rev. data.</li>
       <li>The negative non-retail value in Apr '25 needs explanation — reversal, refund, accounting adjustment?</li>
       <li>With only 12–17 live months for the new streams, correlation estimates involving them are statistically thin.</li>
       <li>The dataset has no funnel data (account creation, funding, first trade), no AUM, and no rate-environment context — all of which would meaningfully sharpen the recommendations.</li>

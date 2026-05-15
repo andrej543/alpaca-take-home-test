@@ -161,7 +161,7 @@ export function ChatPanel({ embedded = false }: { embedded?: boolean }) {
         <div>
           <h1 className="chat-title">Chat with the data</h1>
           <p className="chat-sub">
-            Ask about the narrative analysis page, the PM revenue extract, or both.
+            Ask about the website analysis, the PM data doc, or both.
           </p>
         </div>
         {embedded ? null : (
