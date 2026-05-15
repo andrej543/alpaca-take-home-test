@@ -8,6 +8,16 @@ import {
 } from "@/lib/site-auth-cookie";
 import { sanitizeInternalPath } from "@/lib/sanitize-internal-path";
 
+/** Browsers ignore `Secure` cookies on plain HTTP; `next start` uses NODE_ENV=production on http://localhost. */
+function isRequestHttps(request: NextRequest): boolean {
+  const forwarded = request.headers.get("x-forwarded-proto");
+  if (forwarded) {
+    const first = forwarded.split(",")[0]?.trim();
+    if (first) return first === "https";
+  }
+  return request.nextUrl.protocol === "https:";
+}
+
 function passwordsMatch(submitted: string, expected: string): boolean {
   const a = Buffer.from(submitted, "utf8");
   const b = Buffer.from(expected, "utf8");
@@ -60,7 +70,7 @@ export async function POST(request: NextRequest) {
   const res = NextResponse.redirect(destination);
   res.cookies.set(SITE_SESSION_COOKIE, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: isRequestHttps(request),
     sameSite: "lax",
     path: "/",
     maxAge: SITE_SESSION_TTL_SECONDS,
