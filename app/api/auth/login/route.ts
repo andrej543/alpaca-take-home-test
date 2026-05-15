@@ -25,6 +25,17 @@ function passwordsMatch(submitted: string, expected: string): boolean {
   return timingSafeEqual(a, b);
 }
 
+/**
+ * Chat is embedded on the B2C report; signing in from `/chat` (e.g. iframe auth)
+ * should land on the main report, not the standalone chat route.
+ */
+function normalizePostLoginRedirect(sanitizedRelative: string): string {
+  const q = sanitizedRelative.indexOf("?");
+  const path = q === -1 ? sanitizedRelative : sanitizedRelative.slice(0, q);
+  if (path === "/chat") return "/";
+  return sanitizedRelative;
+}
+
 export async function POST(request: NextRequest) {
   const expected = getSitePassword();
   const contentType = request.headers.get("content-type") ?? "";
@@ -66,7 +77,8 @@ export async function POST(request: NextRequest) {
   }
 
   const token = await createSessionToken(expected);
-  const destination = new URL(safeRedirect, request.url);
+  const landing = normalizePostLoginRedirect(safeRedirect);
+  const destination = new URL(landing, request.url);
   const res = NextResponse.redirect(destination);
   res.cookies.set(SITE_SESSION_COOKIE, token, {
     httpOnly: true,
