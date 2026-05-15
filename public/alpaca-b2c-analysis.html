@@ -102,30 +102,6 @@
     color: var(--accent);
     font-variation-settings: "SOFT" 100, "opsz" 144;
   }
-  .hero-exec-summary {
-    margin: 0 0 48px;
-    max-width: 900px;
-  }
-  .hero-exec-summary .exec-summary-label {
-    font-family: var(--sans);
-    font-size: 13px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--ink);
-    margin: 0 0 14px;
-  }
-  .hero-exec-summary ul {
-    margin: 0;
-    padding-left: 1.2em;
-    font-family: var(--sans);
-    font-size: 17px;
-    line-height: 1.55;
-    color: var(--ink-2);
-    font-weight: 380;
-  }
-  .hero-exec-summary li { margin-bottom: 10px; }
-  .hero-exec-summary li:last-child { margin-bottom: 0; }
   .hero-metrics {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -637,16 +613,6 @@
   }
   .sources li + li { margin-top: 8px; }
   .sources a { font-weight: 500; }
-  .footer-meta {
-    margin: 0;
-    padding-top: 24px;
-    border-top: 1px solid var(--border);
-    font-family: var(--mono);
-    font-size: 12px;
-    text-align: center;
-    color: var(--ink-3);
-    letter-spacing: 0.02em;
-  }
   .footer-credit {
     margin: 20px 0 0;
     padding-top: 20px;
@@ -701,17 +667,6 @@
   <div class="hero-inner">
     <p class="eyebrow">Take-home analysis</p>
     <h1>Inside Alpaca’s Revenue Growth: Growth Drivers, Risks, and Next Moves</h1>
-    <div class="hero-exec-summary">
-      <p class="exec-summary-label">Executive Summary</p>
-      <ul>
-        <li>Revenue 3.5×, accounts 1.4× over the period.</li>
-        <li>Highly concentrated book: 75% of account-months are zero-revenue; top 1% of active accounts drive 65–70% of revenue.</li>
-        <li>Mid-2024 inflection: Simultaneous step-up in trading and cash revenue likely signals net new deposits. Cash likely connected to FED interest rate policy.</li>
-        <li>Two new significant streams: Market data ($111K/mo) and options PFOF ($124K/mo) carry the launch wave; crypto (winter) and FDIC sweep remain immaterial.</li>
-        <li>Cash interest is significant but risky: 26% of revenue, exposed to rate cuts, no natural hedge inside the book.</li>
-        <li>Three plays, sequenced by risk: 1) milk cash interest while high rates (incl. FDIC sweep); 2) expand market data subscriptions as there seems to be PMF; 3) cross-sell options.</li>
-      </ul>
-    </div>
     <div class="hero-metrics">
       <div class="hero-metric">
         <div class="label">Total revenue, 24mo</div>
@@ -739,13 +694,15 @@
 <main class="layout">
   <article class="content">
 
-    <h2><span class="num">01 · Setup</span>Dataset overview</h2>
-    <p class="lede">506,892 account-month rows across 24 months, 29,794 unique accounts, nine revenue streams. The book grew 3.5× while the account base grew only 1.4× — meaning most growth came from monetizing the existing base, not from adding accounts.</p>
-    <p>Three framing facts shape everything below.</p>
+    <h2><span class="num">01 · Executive summary</span>Executive Summary</h2>
+    <p class="lede">506,892 account-month rows across 24 months, 29,794 unique accounts, nine revenue streams. The book grew 3.5× while the account base grew only 1.4×.</p>
     <ul>
-      <li><strong>Revenue 3.5×, accounts 1.4×.</strong> Trailing-3-month revenue went from $362K/mo to $1.26M/mo while total accounts moved from ~18.2K to ~25.5K. The growth came from monetizing the existing base.</li>
-      <li><strong>Highly concentrated book.</strong> 75% of account-months show zero revenue, and in recent months the top 1% of revenue-generating accounts drive 65–70% of revenue. The "B2C" line behaves more like an SMB book than mass-retail.</li>
-      <li><strong>Two data tells.</strong> <code>non_retail_revenue</code> accounts for ~3% of total but spiked to 16% in Q4 2023 — odd presence in a B2C cut. And accounts flagged <code>is_legal_entity = True</code> generate 26% of revenue, suggesting "B2C" here means "served via the retail platform," not "individual humans."</li>
+      <li>Revenue 3.5×, accounts 1.4× over the period.</li>
+      <li>Highly concentrated book: 75% of account-months are zero-revenue; top 1% of active accounts drive 65–70% of revenue.</li>
+      <li>Mid-2024 inflection: Simultaneous step-up in trading and cash revenue likely signals net new deposits. Cash likely connected to FED interest rate policy.</li>
+      <li>Two new significant streams: Market data ($111K/mo) and options PFOF ($124K/mo) carry the launch wave; crypto (winter) and FDIC sweep remain immaterial.</li>
+      <li>Cash interest is significant but risky: 26% of revenue, exposed to rate cuts, no natural hedge inside the book.</li>
+      <li>Three plays, sequenced by risk: 1) milk cash interest while high rates (incl. FDIC sweep); 2) expand market data subscriptions as there seems to be PMF; 3) cross-sell options.</li>
     </ul>
 
     <h2><span class="num">02 · Direction</span>Major trends</h2>
@@ -1025,7 +982,6 @@
         </li>
       </ul>
     </section>
-    <p class="footer-meta">Alpaca · Product take-home submission · Prepared from PM_Interview_Data</p>
     <div class="footer-credit">
       <div>Created by Andrej Hano in May 2026</div>
       <a href="mailto:andrej.hano@gmail.com">andrej.hano@gmail.com</a>
