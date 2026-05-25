@@ -7,6 +7,7 @@ import {
   getSitePassword,
 } from "@/lib/site-auth-cookie";
 import { sanitizeInternalPath } from "@/lib/sanitize-internal-path";
+import { sendSiteAccessNotification } from "@/lib/send-site-access-notification";
 
 /** Browsers ignore `Secure` cookies on plain HTTP; `next start` uses NODE_ENV=production on http://localhost. */
 function isRequestHttps(request: NextRequest): boolean {
@@ -77,6 +78,8 @@ export async function POST(request: NextRequest) {
     // which replays POST on `/` and breaks HTML form login (blank / 405).
     return NextResponse.redirect(fail, 303);
   }
+
+  await sendSiteAccessNotification(request);
 
   const token = await createSessionToken(expected);
   const landing = normalizePostLoginRedirect(safeRedirect);
